@@ -1,0 +1,104 @@
+GEMM Kernel Optimization Techniques
+After benchmarking your naive GEMM kernel, here are key optimization techniques to improve performance:
+
+1. Shared Memory Tiling
+The naive kernel suffers from poor memory access patterns. Each thread reads from global memory multiple times, creating high memory traffic.
+
+Solution: Use shared memory to create tiles that are cooperatively loaded by thread blocks.
+
+cuda
+__global__ void sgemm_shared(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C) {
+    // Define shared memory tiles
+    __shared__ float As[32][32];
+    __shared__ float Bs[32][32];
+    
+    // Load tiles into shared memory
+    // Compute matrix multiplication using tiles
+    // Store results back to global memory
+}
+Expected speedup: 2-5x depending on matrix size
+
+2. Memory Coalescing
+The naive kernel's memory access pattern for matrix B is not coalesced, causing inefficient memory transactions.
+
+Solution: Transpose matrix B or use a different indexing scheme.
+
+cuda
+// Original access pattern (non-coalesced for B):
+tmp += A[x * K + i] * B[i * N + y];
+
+// Improved access pattern (transpose B first):
+tmp += A[x * K + i] * B_transposed[y * K + i];
+Expected speedup: 1.5-3x
+
+3. Loop Unrolling
+The inner loop can be unrolled to reduce loop overhead and enable better instruction scheduling.
+
+cuda
+float tmp = 0.0;
+#pragma unroll 4
+for (int i = 0; i < K; i += 4) {
+    tmp += A[x * K + i] * B[i * N + y];
+    tmp += A[x * K + (i+1)] * B[(i+1) * N + y];
+    tmp += A[x * K + (i+2)] * B[(i+2) * N + y];
+    tmp += A[x * K + (i+3)] * B[(i+3) * N + y];
+}
+Expected speedup: 1.2-1.5x
+
+4. Register Blocking
+Each thread can compute multiple output elements, keeping intermediate results in registers.
+
+cuda
+// Instead of 1 thread computing 1 element:
+// Have 1 thread compute a 2x2 block of elements
+float c00 = 0.0f, c01 = 0.0f, c10 = 0.0f, c11 = 0.0f;
+Expected speedup: 1.5-3x
+
+5. Double Buffering
+Overlap computation with memory loading by using double buffering.
+
+cuda
+__shared__ float As[2][32][32];
+__shared__ float Bs[2][32][32];
+
+// Load first tile
+// While computing on first tile, load second tile
+// Alternate between tiles
+Expected speedup: 1.2-1.5x
+
+6. Tensor Cores (For Volta+ GPUs)
+Modern NVIDIA GPUs have Tensor Cores that can accelerate matrix operations.
+
+cuda
+// Use WMMA (Warp Matrix Multiply Accumulate) API
+#include <mma.h>
+using namespace nvcuda::wmma;
+Expected speedup: 3-8x
+
+7. Use cuBLAS Library
+For production use, consider using NVIDIA's highly optimized cuBLAS library:
+
+cuda
+#include <cublas_v2.h>
+
+// Initialize cuBLAS
+cublasHandle_t handle;
+cublasCreate(&handle);
+
+// Call SGEMM
+cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, 
+            N, M, K, &alpha, B, N, A, K, &beta, C, N);
+
+// Destroy cuBLAS handle
+cublasDestroy(handle);
+Expected speedup: 5-20x over naive implementation
+
+Performance Analysis Checklist
+When analyzing your benchmark results, consider these performance aspects:
+
+Arithmetic Intensity: FLOPS/Byte ratio
+Memory Bound vs. Compute Bound: Is your kernel limited by memory bandwidth or computational throughput?
+Occupancy: Are you efficiently using all SMs on the GPU?
+Instruction Mix: Balance of arithmetic vs. memory access instructions
+Cache Efficiency: L1/L2 cache hit rates (use Nsight Compute for this)
+Remember that optimization techniques should be applied incrementally, measuring the performance impact of each change.
