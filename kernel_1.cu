@@ -10,15 +10,10 @@
 __global__ void sgemm_naive(int M, int N, int K, float alpha, float *A, const float *B, float beta, float *C){
   const uint x = blockIdx.x * blockDim.x + threadIdx.x;
   const uint y = blockIdx.y * blockDim.y + threadIdx.y;
-
   // Check if the thread is in bounds for our matrix
   if (x < M && y < N){
     float tmp = 0.0;
-
     for (int i = 0; i < K; ++i){
-      // Each thread computes one element of the result matrix
-      // A is MxK, B is KxN, C is MxN
-      // For position (x,y) in C, we need to dot product row x of A with column y of B
       tmp += A[x * K + i] * B[i * N + y];
     }
     C[x * N + y] = alpha * tmp + beta * C[x * N + y];

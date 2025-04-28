@@ -1,0 +1,598 @@
+typedef char __nv_bool;
+# 3032 "/opt/cuda/bin/../targets/x86_64-linux/include/driver_types.h"
+struct CUstream_st;
+# 3037 "/opt/cuda/bin/../targets/x86_64-linux/include/driver_types.h"
+struct CUevent_st;
+# 50 "/usr/include/bits/types/struct_FILE.h" 3
+struct _IO_FILE;
+# 214 "/usr/lib/gcc/x86_64-pc-linux-gnu/13.3.1/include/stddef.h" 3
+typedef unsigned long size_t;
+#include "crt/device_runtime.h"
+# 150 "/usr/include/sys/types.h" 3
+typedef unsigned uint;
+# 7 "/usr/include/bits/types/FILE.h" 3
+typedef struct _IO_FILE FILE;
+# 308 "/usr/lib/gcc/x86_64-pc-linux-gnu/13.3.1/include/c++/x86_64-pc-linux-gnu/bits/c++config.h" 3
+typedef unsigned long _ZSt6size_t;
+# 157 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/common_functions.h"
+___device__(extern  __no_sc__) __attribute__((__alloc_size__(1))) __attribute__((__malloc__)) __attribute__((__nothrow__)) void *malloc(size_t);
+# 158 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/common_functions.h"
+___device__(extern  __no_sc__) __attribute__((__nothrow__)) void free(void *);
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 112 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError __cudaCDP2Malloc(void **, size_t);
+# 250 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(extern  __no_sc__) const char *__cudaCDP2GetErrorString(enum cudaError);
+# 259 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(extern  __no_sc__) enum cudaError __cudaCDP2EventRecord(struct CUevent_st *, struct CUstream_st *);
+# 263 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(extern  __no_sc__) enum cudaError __cudaCDP2EventDestroy(struct CUevent_st *);
+# 265 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(extern  __no_sc__) enum cudaError __cudaCDP2Free(void *);
+# 528 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ const char *_ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c18cudaGetErrorStringE9cudaError(enum cudaError);
+# 573 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c15cudaEventRecordEP10CUevent_stP11CUstream_st(struct CUevent_st *, struct CUstream_st *);
+# 593 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c16cudaEventDestroyEP10CUevent_st(struct CUevent_st *);
+# 603 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c8cudaFreeEPv(void *);
+# 608 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c10cudaMallocEPPvm(void **, size_t);
+#if !defined(__CUDABE__)
+# 97 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/common_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) __attribute__((__nothrow__)) void *memcpy(void *__restrict__, const void *__restrict__, size_t);
+#endif
+#if !defined(__CUDABE__)
+# 153 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/common_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) int printf(const char *__restrict__, ...);
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+# 306 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/math_functions.h"
+ __device_builtin__ ___device__(extern  __no_sc__) __attribute__((__nothrow__)) __attribute__((__const__)) float fabsf(float);
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 2924 "/opt/cuda/bin/../targets/x86_64-linux/include/crt/device_functions.h"
+___device__(extern  __no_sc__) unsigned __cudaPushCallConfiguration(struct dim3, struct dim3, size_t, struct CUstream_st *);
+# 831 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c10cudaMallocIfEE9cudaErrorPPT_m(float **, size_t);
+# 10 "kernel_1.cu"
+__global__ __var_used__ extern void _Z11sgemm_naiveiiifPfPKffS_(int, int, int, float, float *, const float *, float, float *);
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+___device__(static  __no_sc__) __inline__ void _ZN4dim3C1Ejjj(struct dim3 *const, unsigned, unsigned, unsigned);
+___device__(static  __no_sc__) __inline__ void _ZN4dim3C2Ejjj(struct dim3 *const, unsigned, unsigned, unsigned);
+#include "common_functions.h"
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 112 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError __cudaCDP2Malloc(
+# 112 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+void **p, 
+# 112 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+size_t s){
+# 113 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{
+# 114 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return cudaErrorUnknown;
+# 115 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+# 528 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ const char *_ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c18cudaGetErrorStringE9cudaError(
+# 528 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+enum cudaError error){
+# 529 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{
+# 530 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return __cudaCDP2GetErrorString(error);
+# 531 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+# 573 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c15cudaEventRecordEP10CUevent_stP11CUstream_st(
+# 573 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+struct CUevent_st *event, 
+# 573 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+struct CUstream_st *stream){
+# 574 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{  struct CUevent_st *__T0;
+ struct CUstream_st *__T1;
+# 575 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return ((__T0 = event) , (void)(__T1 = stream)) , (__cudaCDP2EventRecord(__T0, __T1));
+# 576 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+# 593 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c16cudaEventDestroyEP10CUevent_st(
+# 593 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+struct CUevent_st *event){
+# 594 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{
+# 595 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return __cudaCDP2EventDestroy(event);
+# 596 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+# 603 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c8cudaFreeEPv(
+# 603 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+void *devPtr){
+# 604 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{
+# 605 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return __cudaCDP2Free(devPtr);
+# 606 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+# 608 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c10cudaMallocEPPvm(
+# 608 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+void **devPtr, 
+# 608 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+size_t size){
+# 609 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+{  void **__T2;
+ size_t __T3;
+# 610 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+return ((__T2 = devPtr) , (void)(__T3 = size)) , (__cudaCDP2Malloc(__T2, __T3));
+# 611 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h"
+}}
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+#if !defined(__CUDABE__)
+#endif
+# 831 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+___device__(static  __no_sc__) __inline__ enum cudaError _ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c10cudaMallocIfEE9cudaErrorPPT_m(
+# 832 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+float **devPtr, 
+# 833 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+size_t size){
+# 835 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+{  void **__T4;
+ size_t __T5;
+# 836 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+return ((__T4 = ((void **)((void *)devPtr))) , (void)(__T5 = size)) , (_ZN42_INTERNAL_74f83bf7_11_kernel_1_cu_21a6d49c10cudaMallocEPPvm(__T4, __T5));
+# 837 "/opt/cuda/bin/../targets/x86_64-linux/include/cuda_runtime.h"
+}}
+# 10 "kernel_1.cu"
+__global__ __var_used__ void _Z11sgemm_naiveiiifPfPKffS_(
+# 10 "kernel_1.cu"
+int M, 
+# 10 "kernel_1.cu"
+int N, 
+# 10 "kernel_1.cu"
+int K, 
+# 10 "kernel_1.cu"
+float alpha, 
+# 10 "kernel_1.cu"
+float *A, 
+# 10 "kernel_1.cu"
+const float *B, 
+# 10 "kernel_1.cu"
+float beta, 
+# 10 "kernel_1.cu"
+float *C){
+# 10 "kernel_1.cu"
+{
+# 11 "kernel_1.cu"
+ uint __cuda_local_var_36892_14_non_const_x;
+# 12 "kernel_1.cu"
+ uint __cuda_local_var_36893_14_non_const_y;
+# 11 "kernel_1.cu"
+__cuda_local_var_36892_14_non_const_x = (((blockIdx.x) * (blockDim.x)) + (threadIdx.x));
+# 12 "kernel_1.cu"
+__cuda_local_var_36893_14_non_const_y = (((blockIdx.y) * (blockDim.y)) + (threadIdx.y));
+# 14 "kernel_1.cu"
+if ((__cuda_local_var_36892_14_non_const_x < ((unsigned)M)) && (__cuda_local_var_36893_14_non_const_y < ((unsigned)N)))
+# 14 "kernel_1.cu"
+{
+# 15 "kernel_1.cu"
+ float __cuda_local_var_36896_11_non_const_tmp;
+# 15 "kernel_1.cu"
+__cuda_local_var_36896_11_non_const_tmp = (0.0F);
+# 16 "kernel_1.cu"
+{
+# 16 "kernel_1.cu"
+ int i;
+# 16 "kernel_1.cu"
+i = 0;
+# 16 "kernel_1.cu"
+for (; i < K; ++i)
+# 16 "kernel_1.cu"
+{
+# 17 "kernel_1.cu"
+__cuda_local_var_36896_11_non_const_tmp += ((A[((__cuda_local_var_36892_14_non_const_x * ((unsigned)K)) + ((unsigned)i))]) * (B[(((unsigned)(i * N)) + __cuda_local_var_36893_14_non_const_y)]));
+# 18 "kernel_1.cu"
+} }
+# 19 "kernel_1.cu"
+(C[((__cuda_local_var_36892_14_non_const_x * ((unsigned)N)) + __cuda_local_var_36893_14_non_const_y)]) = ((alpha * __cuda_local_var_36896_11_non_const_tmp) + (beta * (C[((__cuda_local_var_36892_14_non_const_x * ((unsigned)N)) + __cuda_local_var_36893_14_non_const_y)])));
+# 20 "kernel_1.cu"
+} 
+# 21 "kernel_1.cu"
+}}
+__asm__(".align 2");
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+___device__(static  __no_sc__) __inline__ void _ZN4dim3C1Ejjj( struct dim3 *const this, 
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+unsigned vx, 
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+unsigned vy, 
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+unsigned vz){
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+{
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+(this->x) = vx;
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+(this->y) = vy;
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+(this->z) = vz; 
+# 431 "/opt/cuda/bin/../targets/x86_64-linux/include/vector_types.h"
+}}
+__asm__(".align 2");
+___device__(static  __no_sc__) __inline__ void _ZN4dim3C2Ejjj( struct dim3 *const this,  unsigned __T6,  unsigned __T7,  unsigned __T8){ {  _ZN4dim3C1Ejjj(this, __T6, __T7, __T8);  }}
