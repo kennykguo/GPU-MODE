@@ -1,0 +1,6 @@
+   day2   git:(main)  ./kernel
+benchmarking SGEMM
+average kernel execution time: 3.277 ms
+performance: 655.39 GFLOPS
+Verification PASSED: All values match within epsilon 1.000000e-02
+   day2   git:(main)  
