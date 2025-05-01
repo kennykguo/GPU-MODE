@@ -9,44 +9,47 @@
 
 __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const float *B, float beta, float *C){
   const int BLOCKSIZE = 32;
-  const uint threadRow = threadIdx.x; // in the block
-  const uint threadCol = threadIdx.y; // in the block
-  const int row = blockIdx.y * BLOCKSIZE + threadCol; // global in the matrix
-  const int col = blockIdx.x * BLOCKSIZE + threadRow; // global in the matrix
-
-  // Declare shared memory
-  __shared__ float As[BLOCKSIZE][BLOCKSIZE]; // 32 x 32 
-  __shared__ float Bs[BLOCKSIZE][BLOCKSIZE]; // 32 x 32
-
+  const uint threadRow = threadIdx.y; // in the block (up to down)
+  const uint threadCol = threadIdx.x; // in the block (left to right)
+  const int row = blockIdx.y * BLOCKSIZE + threadRow; // global in the C matrix
+  const int col = blockIdx.x * BLOCKSIZE + threadCol; // global in the C matrix
+  
+  // out of bounds of c matrix
   if (row >= M || col >= N){
     return;
   }
 
-  float tmp = 0.0;
-  // the outer loop advances A along the columns and B along
-  // the rows until we have fully calculated the result in C.
-  // The outer loop advances through tiles of A and B
-  for (int bkIdx = 0; bkIdx < K; bkIdx += BLOCKSIZE) {
-    // load a tile of A and B into shared memory
-    // check if we're within bounds
-    if (bkIdx + threadRow < K) {
-      As[threadCol][threadRow] = A[row * K + bkIdx + threadRow];
-    } else {
-      As[threadCol][threadRow] = 0.0f;
-    }
-    
-    if (bkIdx + threadCol < K) {
-      Bs[threadCol][threadRow] = B[(bkIdx + threadCol) * N + col];
-    } else {
-      Bs[threadCol][threadRow] = 0.0f;
-    }
+  // each block gets an equal share of shared memory
+  __shared__ float As[BLOCKSIZE][BLOCKSIZE]; // 32 x 32 
+  __shared__ float Bs[BLOCKSIZE][BLOCKSIZE]; // 32 x 32
 
-    // wait for all threads to load their data
+
+  float tmp = 0.0;
+  // on thread level, fill in shared memory from the corresponding A matrix or B matrix
+  // on block level, loop through all blocks
+  for (int bkIdx = 0; bkIdx < K; bkIdx += BLOCKSIZE) {
+    if (bkIdx + threadCol < K) {
+      As[threadRow][threadCol] = A[row * K + bkIdx + threadCol];
+    }
+    // else {
+    //   As[threadRow][threadCol] = 0.0f;
+    // }
+    
+    if (bkIdx + threadRow < K) {
+      Bs[threadRow][threadCol] = B[(bkIdx + threadRow) * N + col];
+    } 
+    // else {
+    //   Bs[threadRow][threadCol] = 0.0f;
+    // }
+
+    // wait for all threads to load their data into shared memory
     __syncthreads();
 
     // compute dot product for this tile
     for (int dotIdx = 0; dotIdx < BLOCKSIZE; ++dotIdx) {
-      tmp += As[threadCol][dotIdx] * Bs[dotIdx][threadRow];
+      tmp += As[threadRow][dotIdx] * Bs[dotIdx][threadCol];
+      // As -> left to right
+      // Bs -> top to down
     }
     
     // wait for all threads to finish using the shared memory before loading next tile
@@ -54,6 +57,8 @@ __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const flo
   }
   
   // write result to global memory
+  // thread level -> all threads literally have computed their dot product for that entry
+  // C = alpha * (A × B) + beta * C
   C[row * N + col] = alpha * tmp + beta * C[row * N + col];
 }
 
