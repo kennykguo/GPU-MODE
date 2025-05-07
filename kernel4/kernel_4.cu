@@ -84,9 +84,9 @@ __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const flo
             // block row index multiplifed by block size in M dim + sub- row
             As[row][col] = A[(blockIdx.y * BM + row) * K + (bkIdx + col)];
         } 
-        // else {
-        //     As[row][col] = 0.0f;
-        // }
+        else {
+            As[row][col] = 0.0f;
+        }
     }
     
     for (int i = tid; i < BK * BN; i += threadrows * threadcols) {
@@ -98,9 +98,9 @@ __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const flo
         if (bkIdx + row < K && blockIdx.x * BN + col < N) {
             Bs[row][col] = B[(bkIdx + row) * N + (blockIdx.x * BN + col)];
         } 
-        // else {
-        //     Bs[row][col] = 0.0f;
-        // }
+        else {
+            Bs[row][col] = 0.0f;
+        }
     }
     
     // wait for all threads to finish loading into shared memory
