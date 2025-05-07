@@ -7,86 +7,142 @@
 
 #define CEIL_DIV(M, N) (((M) + (N) - 1) / (N))
 
+
+// REMEMBER THIS KERNEL IS INITIALIZED AS:
+// dim3 gridDim((N + 31) / 32, (M + 31) / 32); // Ceiling division to cover entire matrix
+// dim3 blockDim(4, 4); // 4×4 threads per block, NOT 32×32
+
+// launched like dim3 gridDim((N + BN - 1) / BN, (M + BM - 1) / BM);
+// kernel can be made faster through reducing warp divergence. unrolling loops for ILP, checking if thread count needs to be higher due to saturation of arithmetic intensity
 __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const float *B, float beta, float *C){
-    // moving onto 1d arrays
-    // A: 1D array with indexing A[row * K + col]
-    // B: 1D array with indexing B[row * N + col]
-    // C: 1D array with indexing C[row * N + col]
-    // Grid divides C into blocks of size BLOCKSIZE × BLOCKSIZE (2D)
-    // Block dimensions should match BLOCKSIZE for efficient thread mapping (32, 32)
+  // moving onto 1d arrays
+  // a: 1d array with indexing a[row * k + col]
+  // b: 1d array with indexing b[row * n + col]
+  // c: 1d array with indexing c[row * n + col]
+  // grid divides c into blocks of size blocksize × blocksize (2d)
+  // block dimensions should match blocksize for efficient thread mapping (32, 32)
 
-    // TILE DIMENSIONS
-    const int BLOCKSIZE = 32;
-    const int TM = 8;  // elements in tile computed per thread in M dimension
-    const int TN = 8;  // elements in tile computed per thread in N dimension
+  // tile dimensions
+  // 
+  const int BLOCKSIZE = 32; // actual thread block is 4 x 4 threads!
+  const int TM = 8;  // elements in tile computed per thread in m dimension
+  const int TN = 8;  // elements in tile computed per thread in n dimension
 
-    // row and col index in the context of each tile
-    const int threadrows = BLOCKSIZE / TM;  // threads in y-direction
-    const int threadcols = BLOCKSIZE / TN;  // threads in x-direction
+  // thread organization within the block
+  const int threadrows = BLOCKSIZE / TM;  // 4 - threads in y-direction (4)
+  const int threadcols = BLOCKSIZE / TN;  // 4 - threads in x-direction (4)
 
-    // work through K one blocktile at a time
-    // need to write it like this since TM and TN are not always divisors of BLOCKSIZE
+  // actual block dimensions used for computation
+  const int BM = threadrows * TM;  // block size in m dimension (32)
+  const int BN = threadcols * TN;  // block size in n dimension (32)
+  const int BK = 16;               // tiling size in k dimension
 
-    // updated size of block size in M and N dimensions, to ensure that we have a clean multiple of TM and TN respectively
-    const int BM = threadrows * TM;  // block size (simplified)
-    // technically is block size in M dim
-    const int BN = threadcols * TN;  // block size (simplified)
-    // block size in N dimension
-    const int BK = 16;  // tiling size in K dimension
+  // thread identifiers within the block
+  const int threadRow = threadIdx.y;
+  const int threadCol = threadIdx.x; //
+  
+  // local thread id (linearized)
+  const int tid = threadRow * blockDim.x + threadCol;
 
-    // thread to block (vars local to block)
-    const int threadRow = threadIdx.y;
-    const int threadCol = threadIdx.x;
+  // starting point for this thread's computation in the global matrix C
+  // row + sub-row
+  // col + sub-col
+  const int rowOffset = blockIdx.y * BM + (tid / threadcols) * TM;
+  const int colOffset = blockIdx.x * BN + (tid % threadcols) * TN;
 
-    // map thread to output in C
-    // block in vertical dir
-    // sub-block in vertical block
-    const int rowOffset = blockIdx.y * BM + threadRow * TM;
-    // rowOffset is global. BM is just block_size don't forget. the col dimension is
-    // sub-block is indexed this way, because we are calculating TM entries, per thread
-    const int colOffset = blockIdx.x * BN + threadCol * TN;
+  // allocate shared memory for tiles
+  __shared__ float As[BM][BK]; // 32 x 32
+  __shared__ float Bs[BK][BN]; // 32 x 32
 
-    // focusing on C matrix, segment each block into BM x BN blocks. need to have a valid thread checking mechanism
-    // out of bounds of c matrix
-    // if (row >= M || col >= N){
-    // return;
-    // }
+  // per-thread accumulation registers
+  float threadResults[TM][TN] = {0.0f}; // 8 x 8
 
-    // caching the current BM x BN block
-    // each block of threads gets an equal share of shared memory
-    __shared__ float As[BM][BK];
-    __shared__ float Bs[BK][BN];
+  // iterate through k dimension in blocks of size bk
+  // REMEMBER: each thread must calculate its corresponding 8x8 results in the C matrix
+  // looping through A, and B in the K dim, in increments of BK
+  // bkIdx is the corresponding global gridded index for for col in A, aswell as the row in B
+  // by adding internal col, we get the actual column to load, and vice versa for row
+  for (int bkIdx = 0; bkIdx < K; bkIdx += BK) {
+    // load As
+    // starting from the global thread index - REMEMBER 4 x 4 block of threads
 
+    // caching 32 x 16
 
-    // per-thread accumulation
-    float threadResults[TM][TN] = {0.0};
+    // loading into As, from A
+    // loading into BM X BK from left to right
+    // if BK != threadrows * threadcols, some threads need to write more than once to smem, or be idle
+    // total threads running per block - threadrows * threadcols)
+    // loop uses tid as a way to create internal var row and col, to populate shared memory
+    for (int i = tid; i < BM * BK; i += threadrows * threadcols) {
+        // left to right allows coalescing
+        // internal values for As
+        int row = i / BK; // O to BM  -1
+        int col = i % BK; // 0 to BK - 1
 
-    // block index increments here by bk. this loop computes the dot product per thread
-    for (uint bkIdx = 0; bkIdx < K; bkIdx += BK) {
-        As[threadRow % BM][threadCol %BK] = A[(bkIdx + threadRow) * K + threadCol];
-        Bs[threadRow % BK][threadCol % BN] = B[(bkIdx + threadRow) * N + blockIdx.x * BLOCKSIZE + threadCol];
+        // bounds check (BM * BK not always a multiple of threadrows * threadcols)
+        if (blockIdx.y * BM + row < M && bkIdx + col < K) {
+            // block row index multiplifed by block size in M dim + sub- row
+            As[row][col] = A[(blockIdx.y * BM + row) * K + (bkIdx + col)];
+        } 
+        // else {
+        //     As[row][col] = 0.0f;
+        // }
+    }
     
-        // wait for all threads to load their data into shared memory
-        __syncthreads();
+    for (int i = tid; i < BK * BN; i += threadrows * threadcols) {
 
-        // compute dot product for this tile (each thread computes)
-        // loops over BK (dot product)
-        for (uint dotIdx = 0; dotIdx < BK; ++dotIdx) {
-            float b_temp = Bs[dotIdx][threadCol % BN];
-            for (uint resIdx = 0; resIdx < TM; ++resIdx){
-                threadResults[resIdx][threadCol % TN] += As[threadRow % BM][resIdx] * b_temp;
+        int row = i / BN;
+        int col = i % BN;
+        
+        // left to right allows coalescing
+        if (bkIdx + row < K && blockIdx.x * BN + col < N) {
+            Bs[row][col] = B[(bkIdx + row) * N + (blockIdx.x * BN + col)];
+        } 
+        // else {
+        //     Bs[row][col] = 0.0f;
+        // }
+    }
+    
+    // wait for all threads to finish loading into shared memory
+    __syncthreads();
+
+    // compute the dot product for this thread's assigned elements (TM X TN) -> 8 x 8
+    for (int dotIdx = 0; dotIdx < BK; ++dotIdx) {
+        // each thread handles a tm×tn block
+        for (int i = 0; i < TM; ++i) {
+            int arow = (tid / threadcols) * TM + i;
+            // bounds check -> incase arow is not a multiple of BM
+            if (arow < BM) {
+              float aval = As[arow][dotIdx]; // left to right
+              for (int j = 0; j < TN; ++j) {
+                int bcol = (tid % threadcols) * TN + j;
+                if (bcol < BN) { // another boundary check
+                    threadResults[i][j] += aval * Bs[dotIdx][bcol];
+                }
+              }
             }
-            
         }
-
+    }
+      
     // wait for all threads to finish using the shared memory before loading next tile
     __syncthreads();
-    }
+  }
 
-    // write result to global memory
-    // thread level -> all threads literally have computed their dot product for that entry
-    // C = alpha * (A × B) + beta * C
-    C[(rowOffset + TM) * N + (colOffset + TN)] = threadResults[threadRow][threadCol];
+  // write results back to global memory with alpha and beta scaling
+  for (int i = 0; i < TM; ++i) {
+      int globalRow = rowOffset + i;
+
+      if (globalRow < M) {
+          for (int j = 0; j < TN; ++j) {
+              int globalCol = colOffset + j;
+              
+              if (globalCol < N) {
+                  int globalIdx = globalRow * N + globalCol;
+                  C[globalIdx] = alpha * threadResults[i][j] + beta * C[globalIdx];
+              }
+          }
+      }
+  }
 }
 
 
@@ -189,8 +245,8 @@ int main(){
   CHECK_CUDA_ERROR(cudaEventCreate(&stop));
 
   // grid and block dimensions - 2d and 2d
-  dim3 gridDim(CEIL_DIV(M, 32), CEIL_DIV(N, 32), 1);
-  dim3 blockDim(32, 32);
+  dim3 gridDim((N + 31) / 32, (M + 31) / 32, 1); 
+  dim3 blockDim(4, 4);
   const int num_iterations = 10;
   
   // benchmark loop  
