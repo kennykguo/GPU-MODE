@@ -1,6 +1,6 @@
 NVCC = nvcc
 PROGRAM_NAME = kernel
-SRC = kernel_4.cu
+SRC = kernel_4_simple.cu
 TARGET = $(PROGRAM_NAME)
 
 # CUDA flags with Ampere architecture (RTX 3060)

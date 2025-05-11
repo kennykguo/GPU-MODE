@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <cuda_profiler_api.h>
 #include <time.h>
-
+#include <assert.h>
 
 #define CEIL_DIV(M, N) (((M) + (N) - 1) / (N))
 
@@ -23,127 +23,74 @@ __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const flo
   // block dimensions should match blocksize for efficient thread mapping (32, 32)
 
   // tile dimensions
-  // 
-  const int BLOCKSIZE = 32; // actual thread block is 4 x 4 threads!
-  const int TM = 8;  // elements in tile computed per thread in m dimension
-  const int TN = 8;  // elements in tile computed per thread in n dimension
+  const int BM = 64; 
+  const int BN = 64;
+  const int BK = 8;
+  const int TM = 8;
+  const int TN = 8; // TM = TN
 
-  // thread organization within the block
-  const int threadrows = BLOCKSIZE / TM;  // 4 - threads in y-direction (4)
-  const int threadcols = BLOCKSIZE / TN;  // 4 - threads in x-direction (4)
+  const uint block_row_idx = blockIdx.y;
+  const uint block_col_idx = blockIdx.x;
 
-  // actual block dimensions used for computation
-  const int BM = threadrows * TM;  // block size in m dimension (32)
-  const int BN = threadcols * TN;  // block size in n dimension (32)
-  const int BK = 16;               // tiling size in k dimension
+  const int total_results = BM * BN; // results per block to calculate
+  const uint threads_per_block = total_results / TM; // # of threads per block
+  assert(threads_per_block == blockDim.x); // total # of threads should be consistent
 
-  // thread identifiers within the block
-  const int threadRow = threadIdx.y;
-  const int threadCol = threadIdx.x; //
+  const int thread_row = threadIdx.x / BN;
+  const int thread_col = threadIdx.x % BN;
+
+  __shared__ float As[BM * BK]; // floats to store mat mul answers
+  __shared__ float Bs[BK * BN]; // block matrix sizes
+
+  A += block_row_idx * BM * K; // Move block's threads to corresponding tiles of memory
+  B += block_col_idx * BN;
+  C += (block_row_idx * BM) * N + (block_col_idx * BN);
   
-  // local thread id (linearized)
-  const int tid = threadRow * blockDim.x + threadCol;
+  // for loading into smem
+  const int inner_row_A = threadIdx.x / BK;
+  const int inner_col_A = threadIdx.x % BK;
+  const int inner_row_B = threadIdx.x / BN;
+  const int inner_col_B = threadIdx.x % BN;
 
-  // starting point for this thread's computation in the global matrix C
-  // row + sub-row
-  // col + sub-col
-  const int rowOffset = blockIdx.y * BM + (tid / threadcols) * TM;
-  const int colOffset = blockIdx.x * BN + (tid % threadcols) * TN;
+  // registers
+  float tmp_results[TM] = {0.0f};
 
-  // allocate shared memory for tiles
-  __shared__ float As[BM][BK]; // 32 x 16
-  __shared__ float Bs[BK][BN]; // 16 x 32
 
-  // per-thread accumulation registers
-  float threadResults[TM][TN] = {0.0f}; // 8 x 8
-
-  // iterate through k dimension in blocks of size bk
-  // REMEMBER: each thread must calculate its corresponding 8x8 results in the C matrix
-  // looping through A, and B in the K dim, in increments of BK
-  // bkIdx is the corresponding global gridded index for for col in A, aswell as the row in B
-  // by adding internal col, we get the actual column to load, and vice versa for row
-  for (int bkIdx = 0; bkIdx < K; bkIdx += BK) {
-    // load As
-    // starting from the global thread index - REMEMBER 4 x 4 block of threads
-
-    // caching 32 x 16
-
-    // loading into As, from A
-    // loading into BM X BK from left to right
-    // if BK != threadrows * threadcols, some threads need to write more than once to smem, or be idle
-    // total threads running per block - threadrows * threadcols)
-    // loop uses tid as a way to create internal var row and col, to populate shared memory
-    for (int i = tid; i < BM * BK; i += threadrows * threadcols) {
-        // left to right allows coalescing
-        // internal values for As
-        int row = i / BK; // O to BM  -1
-        int col = i % BK; // 0 to BK - 1
-
-        // bounds check (BM * BK not always a multiple of threadrows * threadcols)
-        if (blockIdx.y * BM + row < M && bkIdx + col < K) {
-            // block row index multiplifed by block size in M dim + sub- row
-            As[row][col] = A[(blockIdx.y * BM + row) * K + (bkIdx + col)];
-        } 
-        else {
-            As[row][col] = 0.0f;
-        }
-    }
-    
-    for (int i = tid; i < BK * BN; i += threadrows * threadcols) {
-
-        int row = i / BN;
-        int col = i % BN;
-        
-        // left to right allows coalescing
-        if (bkIdx + row < K && blockIdx.x * BN + col < N) {
-            Bs[row][col] = B[(bkIdx + row) * N + (blockIdx.x * BN + col)];
-        } 
-        else {
-            Bs[row][col] = 0.0f;
-        }
-    }
-    
-    // wait for all threads to finish loading into shared memory
+  for (uint block_idx = 0; block_idx < K; block_idx += BK){
+    // load into smem first
+    // in every block, there are 64 x 8 = 512 threads
+    // each thread loads exactly one element, in a block
+    // hence assert(threads_per_block == blockDim.x);
+    // inner_row_A ranges from 0 to 63 (64 rows)
+    // inner_col_A ranges from 0 to 7 (8 columns)
+    // inner_row_B ranges from 0 to 7 (8 rows)
+    // inner_col_B ranges from 0 to 63 (64 columns)
+    As[inner_row_A * BK + inner_col_A] = A[inner_row_A * K + inner_col_A];
+    Bs[inner_row_B * BN + inner_col_B] = B[inner_row_B * N + inner_col_B];
     __syncthreads();
+    
+    A += BK;
+    B += BK * N;
 
-    // compute the dot product for this thread's assigned elements (TM X TN) -> 8 x 8
-    for (int dotIdx = 0; dotIdx < BK; ++dotIdx) {
-        // each thread handles a tm×tn block
-        for (int i = 0; i < TM; ++i) {
-            int arow = (tid / threadcols) * TM + i;
-            // bounds check -> incase arow is not a multiple of BM
-            if (arow < BM) {
-              float aval = As[arow][dotIdx]; // left to right
-              for (int j = 0; j < TN; ++j) {
-                int bcol = (tid % threadcols) * TN + j;
-                if (bcol < BN) { // another boundary check
-                    threadResults[i][j] += aval * Bs[dotIdx][bcol];
-                }
-              }
-            }
-        }
-    }
-      
-    // wait for all threads to finish using the shared memory before loading next tile
-    __syncthreads();
-  }
+    for (uint dot_idx = 0; dot_idx < BK; ++dot_idx){ //   
+      const float B_tmp = Bs[(dot_idx) * BN + inner_col_B]; // move to a register
+      for (uint res_idx = 0; res_idx < TM; ++res_idx){ //loop over entire tile
 
-  // write results back to global memory with alpha and beta scaling
-  for (int i = 0; i < TM; ++i) {
-      int globalRow = rowOffset + i;
-
-      if (globalRow < M) {
-          for (int j = 0; j < TN; ++j) {
-              int globalCol = colOffset + j;
-              
-              if (globalCol < N) {
-                  int globalIdx = globalRow * N + globalCol;
-                  C[globalIdx] = alpha * threadResults[i][j] + beta * C[globalIdx];
-              }
-          }
+        // (thread_row * TM + res_idx) iterates row by row. dot_idx we iterate across BK correctly
+        // in As, calculate down, with B_tmp
+        tmp_results[res_idx] += As[(thread_row * TM + res_idx) * BK + dot_idx] * B_tmp;
       }
+      // ensure all computations done before next tile
+    }
+    __syncthreads();
   }
-}
+
+  // store into C
+  // each thread in each block calculated a column of 8 elements
+  for (uint res_idx = 0; res_idx < TM; ++res_idx){ //loop over entire tile
+    C[(thread_row * TM + res_idx)* N + thread_col]  = alpha * tmp_results[res_idx] + beta * C[(thread_row * TM + res_idx)* N + thread_col];
+  }
+}   
 
 
 void sgemm_cpu(int M, int N, int K, float alpha, float *A, float *B, float beta, float *C) {
@@ -245,8 +192,8 @@ int main(){
   CHECK_CUDA_ERROR(cudaEventCreate(&stop));
 
   // grid and block dimensions - 2d and 2d
-  dim3 gridDim((N + 31) / 32, (M + 31) / 32, 1); 
-  dim3 blockDim(4, 4);
+  dim3 gridDim((N + 64 - 1) / 64, (M + 64 - 1) / 64, 1);
+  dim3 blockDim(512, 1, 1);
   const int num_iterations = 10;
   
   // benchmark loop  
