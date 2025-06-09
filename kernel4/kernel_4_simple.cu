@@ -72,12 +72,18 @@ __global__ void sgemm_smem(int M, int N, int K, float alpha, float *A, const flo
     A += BK;
     B += BK * N;
 
+    // 64 x 8, 8 x 64
     for (uint dot_idx = 0; dot_idx < BK; ++dot_idx){ //   
       const float B_tmp = Bs[(dot_idx) * BN + inner_col_B]; // move to a register
+
+      // each thread covers TM # of elements
+      // needs to be 64 blocks rows for BM = 64
+      // 4096 / 512 = 8 -> needs to be 8 elements per thread covered
+      // res_idx loops top down
+      // multiply thread_row by TM since 
       for (uint res_idx = 0; res_idx < TM; ++res_idx){ //loop over entire tile
 
-        // (thread_row * TM + res_idx) iterates row by row. dot_idx we iterate across BK correctly
-        // in As, calculate down, with B_tmp
+        // (thread_row * TM + res_idx) iterates row by row. dot_idx we iterate across BK correctly in As, calculate down, with B_tmp
         tmp_results[res_idx] += As[(thread_row * TM + res_idx) * BK + dot_idx] * B_tmp;
       }
       // ensure all computations done before next tile
