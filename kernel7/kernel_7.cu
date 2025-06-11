@@ -6,35 +6,18 @@
 #include <assert.h>
 
 #define CEIL_DIV(M, N) (((M) + (N) - 1) / (N))
-#pragma once
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
-#include <cublas_v2.h>
-#include <cuda_runtime.h>
 
-#define CEIL_DIV(M, N) (((M) + (N)-1) / (N))
-
-// === BANK CONFLICT RESOLUTION SGEMM KERNEL ===
 // this kernel builds on the vectorized kernel by adding bank conflict resolution
 // for shared memory B matrix access while maintaining all vectorization benefits
-// 
-// KEY INNOVATION: coordinate transformation that maps natural storage coordinates
+// coordinate transformation that maps natural storage coordinates
 // to a "linearized" layout that eliminates bank conflicts during computation
-//
-// BANK CONFLICT PRIMER:
 // - shared memory has 32 banks, each 4 bytes wide
 // - bank = (address / 4) % 32
 // - conflicts occur when multiple threads access same bank, different addresses
 // - conflicts can reduce bandwidth by up to 32x
-//
-// SOLUTION STRATEGY:
 // - change both storage pattern AND access pattern via coordinate transformation
 // - ensure consecutive thread_col_idx values access consecutive addresses
 // - consecutive addresses map to consecutive banks → zero conflicts
-
-
 __global__ void sgemm_resolve_bank_conflicts(int M, int N, int K, float alpha,
                                           float *A, float *B, float beta,
                                           float *C) {

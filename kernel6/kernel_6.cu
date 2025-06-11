@@ -85,7 +85,7 @@ __global__ void sgemm_vectorized(int M, int N, int K, float alpha, float *A,
     // this enables stride-1 access when loading regM values during computation
     shared_a_tile_transposed[(a_load_col_group * vector_width + 0) * block_tile_rows + a_load_row] = a_vector.x;
     shared_a_tile_transposed[(a_load_col_group * vector_width + 1) * block_tile_rows + a_load_row] = a_vector.y;
-    shared_a_tile_transposed[(a_load_col_group * vector_width + 2) * block_tile_rows + a_load_row] = a_vector.z;
+    shared_a_tile_transposed[(a_load_col_group * vector_width + 3) * block_tile_rows + a_load_row] = a_vector.z;
     shared_a_tile_transposed[(a_load_col_group * vector_width + 3) * block_tile_rows + a_load_row] = a_vector.w;
 
     // VECTORIZED B MATRIX LOADING (NO TRANSPOSE)
@@ -112,7 +112,7 @@ __global__ void sgemm_vectorized(int M, int N, int K, float alpha, float *A,
         reg_a_values[i] = shared_a_tile_transposed[dot_product_idx * block_tile_rows + thread_row_idx * thread_tile_rows + i];
       }
       // access pattern - consecutive elements with stride 1
-      // hardware generates - 2x LDS.128 (loads 4 elements each) instead of 8x LDS
+      // hardware generates - 2x LDS.128 per SMEM (loads 4 elements each) instead of 8x LDS.32 (single val loaded)
       
       // LOAD B VALUES INTO REGISTERS
       // load 8 consecutive B elements (already stride-1 in original layout)
@@ -122,6 +122,7 @@ __global__ void sgemm_vectorized(int M, int N, int K, float alpha, float *A,
       
       // COMPUTE OUTER PRODUCT AND ACCUMULATE
       // compute 8x8 outer product of reg_a_values and reg_b_values
+      // TWO for loops calculate partial dot product (looks like a permutation, because its for the entire 8x8 block)
       for (int result_row = 0; result_row < thread_tile_rows; ++result_row) {
         for (int result_col = 0; result_col < thread_tile_cols; ++result_col) {
           thread_results[result_row * thread_tile_cols + result_col] += 
