@@ -6,6 +6,8 @@
 #include <assert.h>
 
 #define CEIL_DIV(M, N) (((M) + (N) - 1) / (N))
+
+
 // vectorized sgemm kernel with 128-bit memory access optimization
 // optimizations - vectorized gmem loads/stores, transposed As for vectorized smem access
 __global__ void sgemm_vectorized(int M, int N, int K, float alpha, float *A,

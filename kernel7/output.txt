@@ -1,4 +1,4 @@
 benchmarking SGEMM
-average kernel execution time - 1.721 ms
-performance - 1247.59 GFLOPS
+average kernel execution time - 1.485 ms
+performance - 1445.98 GFLOPS
 Verification PASSED - All values match within epsilon 1.000000e-02
