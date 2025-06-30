@@ -1,7 +1,8 @@
 {
   "files.associations": {
     "chrono": "cpp",
-    "functional": "cpp"
+    "functional": "cpp",
+    "barrier": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
