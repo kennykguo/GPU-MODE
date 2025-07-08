@@ -1,0 +1,5 @@
+nvcc add.cu -o add
+./add
+
+nsys profile -t cuda --stats=true ./add_cuda
+ncu-ui your_file.qdstrm
