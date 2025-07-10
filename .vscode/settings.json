@@ -2,7 +2,10 @@
   "files.associations": {
     "chrono": "cpp",
     "functional": "cpp",
-    "barrier": "cpp"
+    "barrier": "cpp",
+    "random": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
