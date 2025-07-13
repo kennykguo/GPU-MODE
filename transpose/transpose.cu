@@ -83,7 +83,6 @@ int main(int argc, char **argv) {
          nx, ny, TILE_DIM, BLOCK_ROWS, TILE_DIM, TILE_DIM);
   printf("dimGrid: %d %d %d. dimBlock: %d %d %d\n",
          dim_grid.x, dim_grid.y, dim_grid.z, dim_block.x, dim_block.y, dim_block.z);
-  
   check_cuda(cudaSetDevice(dev_id));
 
   // host memory allocation
@@ -95,16 +94,6 @@ int main(int argc, char **argv) {
   float *d_input_data, *d_output_data;
   check_cuda(cudaMalloc(&d_input_data, mem_size));
   check_cuda(cudaMalloc(&d_output_data, mem_size));
-
-  // parameter validation
-  if (nx % TILE_DIM || ny % TILE_DIM) {
-    printf("nx and ny must be a multiple of TILE_DIM\n");
-    goto error_exit;
-  }
-  if (TILE_DIM % BLOCK_ROWS) {
-    printf("TILE_DIM must be a multiple of BLOCK_ROWS\n");
-    goto error_exit;
-  }
     
   // initialize input data
   for (int j = 0; j < ny; j++)
@@ -144,8 +133,7 @@ int main(int argc, char **argv) {
   // copy result back and validate
   check_cuda(cudaMemcpy(h_output_data, d_output_data, mem_size, cudaMemcpyDeviceToHost));
   postprocess(gold, h_output_data, nx * ny, ms);
-
-error_exit:
+  
   // cleanup resources
   check_cuda(cudaEventDestroy(start_event));
   check_cuda(cudaEventDestroy(stop_event));
